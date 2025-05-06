@@ -8,6 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+.env
+
 
 # Streamlit docs
 streamlit_docs/
