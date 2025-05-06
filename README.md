@@ -1,13 +1,17 @@
 # AI 튜토리얼 생성기
 
 AI를 활용하여 코드베이스를 자동으로 튜토리얼로 변환하는 프로젝트입니다.
-메인 로직과 Streamlit UI는 `uv` 또는 `venv` 환경에서 실행할 수 있습니다.
+
+(예시 화면)
+![image](https://github.com/user-attachments/assets/b2b31861-d48d-4c22-acc5-b76924adce89)
+
+* https://github.com/The-Pocket/PocketFlow-Tutorial-Codebase-Knowledge 의 주요 내용을 기반으로 내용을 간소화하고 Streamlit으로 구현한 프로젝트입니다.
+
 
 ---
 
 ## 요구사항
 
-* Python 3.7 이상
 * 주요 패키지: `pyyaml`, `streamlit`, `openai`, `requests`, `python-dotenv`
 
 ```bash
