@@ -75,4 +75,3 @@ streamlit run streamlit_ui.py
 
 ---
 
-필요하다면 `.env.example` 템플릿이나 실행 예시도 추가할 수 있습니다. 원하시면 함께 도와드릴까요?
