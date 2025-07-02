@@ -9,15 +9,24 @@ from utils.llm_call import llm_call
 # Logger setup
 g_logger = logging.getLogger(__name__)
 
-def setup_logging(log_path: Path = Path("debug.log")) -> None:
+def setup_logging(log_path: Path = Path("debug.log"), level: int = logging.INFO) -> None:
     """
     Configure file logging.
+    
+    Args:
+        log_path: Path to log file
+        level: Logging level (default: INFO)
     """
-    handler = logging.FileHandler(log_path, mode='w', encoding='utf-8')
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-    g_logger.addHandler(handler)
-    g_logger.setLevel(logging.DEBUG)
+    try:
+        handler = logging.FileHandler(log_path, mode='a', encoding='utf-8')  # 'a' mode for append
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        g_logger.addHandler(handler)
+        g_logger.setLevel(level)
+        g_logger.info("Logging initialized successfully")
+    except Exception as e:
+        print(f"Error setting up logging: {e}")
+        raise
     
     
 # 1. 깃허브에서 코드 가져오기
@@ -25,17 +34,35 @@ def fetch_github_repo(repo_url: str, token: str = None) -> Dict[str, str]:
     """
     Fetch files from a GitHub repository using crawl_github_files.
 
-    Returns a mapping of filename to content.
+    Args:
+        repo_url: GitHub repository URL
+        token: GitHub token (optional)
+
+    Returns:
+        Dict mapping filename to content
+
+    Raises:
+        ValueError: If repo_url is not valid
+        RuntimeError: If no files are found
     """
-    g_logger.info("Fetching GitHub repo: %s", repo_url)
-    result = crawl_github_files(repo_url=repo_url, token=token)
-    files = result.get("files") or {}
-    if not files:
-        g_logger.error("No files found in repo: %s", repo_url)
-        raise RuntimeError(f"No files found in {repo_url}")
-    g_logger.info("Retrieved %d files", len(files))
-    g_logger.debug("fetch_github_repo 최종 결과: %s", files)
-    return files
+    if not repo_url:
+        raise ValueError("repo_url cannot be empty")
+    
+    try:
+        g_logger.info("Fetching GitHub repo: %s", repo_url)
+        result = crawl_github_files(repo_url=repo_url, token=token)
+        files = result.get("files") or {}
+        
+        if not files:
+            g_logger.error("No files found in repo: %s", repo_url)
+            raise RuntimeError(f"No files found in {repo_url}")
+        
+        g_logger.info("Retrieved %d files", len(files))
+        g_logger.debug("fetch_github_repo 최종 결과: %s", files)
+        return files
+    except Exception as e:
+        g_logger.error("Error fetching GitHub repo: %s", str(e))
+        raise
 
 # 2. 코드의 핵심 개념 추출
 def extract_abstractions(
@@ -122,10 +149,14 @@ def generate_tutorials(
 
     Returns list of generated file paths.
     """
-        # 1) Empty or recreate the folder
-    if output_dir.exists():
-        shutil.rmtree(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+        # 1) Empty or recreate the folder safely
+    try:
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        g_logger.error("Error creating output directory: %s", str(e))
+        raise RuntimeError(f"Failed to create output directory: {e}")
     # inside generate_tutorials, after output_dir setup
     # e.g. repo_url = "https://github.com/dabidstudio/python_deepresearch"
     owner_repo = "/".join(repo_url.rstrip("/").split("/")[-2:])
@@ -207,9 +238,10 @@ setup_logging()
 def main():
     
     # repo_url = "https://github.com/modelcontextprotocol/python-sdk"
+    # repo_url = "https://github.com/dabidstudio/python_deepresearch"
     # project_name = "python mcp server"
-    repo_url = "https://github.com/dabidstudio/python_deepresearch"
-    project_name = "python deep research"
+    repo_url = "https://github.com/marcel-kanter/python-canopen"
+    project_name = "python canopen"
 
     language = "korean"
 
