@@ -13,7 +13,7 @@ def llm_call(prompt: str) -> str:
     """
     messages = [{"role": "user", "content": prompt}]
     chat_completion = client.chat.completions.create(
-        model="gpt-4.1",
+        model="gpt-5-mini",
         messages=messages,
     )
     return chat_completion.choices[0].message.content
